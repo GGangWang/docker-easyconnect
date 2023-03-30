@@ -4,7 +4,7 @@ logoutput: /var/log/sockd.log
 #debug: 2
 
 #server address specification
-internal: eth0 port = 1080
+internal: eth0 port = 1081
 external: tun0
 external.rotation: route
 
