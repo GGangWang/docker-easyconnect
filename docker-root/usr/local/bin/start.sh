@@ -48,7 +48,7 @@ fi
 internals=""
 externals=""
 for iface in $(ip -o addr | sed -E 's/^[0-9]+: ([^ ]+) .*/\1/' | sort | uniq | grep -v "lo\|sit\|vir"); do
-        internals="${internals}internal: $iface port = 1080\\n"
+        internals="${internals}internal: $iface port = 1081\\n"
         externals="${externals}external: $iface\\n"
 done
 sed /^internal:/c"$internals" -i /run/danted.conf
@@ -57,18 +57,18 @@ sed /^external:/a"$externals" -i /run/danted.conf
 [ -n "$NODANTED" ] || (while true
 do
 sleep 5
-open_port 1080
+open_port 1081
 [ -d /sys/class/net/tun0 ] && {
 	chmod a+w /tmp
 	/usr/sbin/danted -f /run/danted.conf
 }
 done
 )&
-open_port 8888
+open_port 8889
 tinyproxy -c /etc/tinyproxy.conf
 
 iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE
-open_port 4440
+open_port 4441
 iptables -t nat -N SANGFOR_OUTPUT
 iptables -t nat -A PREROUTING -j SANGFOR_OUTPUT
 
@@ -81,10 +81,10 @@ iptables -A INPUT -i tun0 -p tcp -j DROP
 # ( while true; do sleep 5 ; iptables -D SANGFOR_VIRTUAL -j DROP 2>/dev/null ; done )&
 
 # 暴露 54530 端口
-open_port 54530
-open_port 54531
-iptables -t nat -A PREROUTING -p tcp --dport 54530 -m addrtype --dst-type LOCAL -j REDIRECT --to-port 54531
-socat tcp-listen:54531,reuseaddr,fork tcp4:127.0.0.1:54530 &
+open_port 54540
+open_port 54541
+iptables -t nat -A PREROUTING -p tcp --dport 54540 -m addrtype --dst-type LOCAL -j REDIRECT --to-port 54541
+socat tcp-listen:54541,reuseaddr,fork tcp4:127.0.0.1:54540 &
 
 [ -n "$EXIT" ] && export MAX_RETRY=0
 
@@ -140,7 +140,7 @@ then
 
 	VNC_SIZE="${VNC_SIZE:-1110x620}"
 
-	open_port 5901
+	open_port 5902
 	tigervncserver :1 -geometry "$VNC_SIZE" -localhost no -passwd ~/.vnc/passwd -xstartup flwm
 	DISPLAY=:1
 
@@ -150,8 +150,8 @@ then
 
 	# 环境变量USE_NOVNC不为空时，启动 easy-novnc
 	if [ -n "$USE_NOVNC" ]; then
-		open_port 8080
-		easy-novnc -p 5901 2>/dev/null &
+		open_port 8980
+		easy-novnc -p 5902 2>/dev/null &
 	fi
 fi
 
